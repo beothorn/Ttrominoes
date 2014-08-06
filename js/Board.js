@@ -68,7 +68,7 @@ BoardClass.prototype = function(){
 		]
 	];
 	
-	var start = function(){
+	function start(){
 		this.piece = getRandomPiece();	
 	}
 
@@ -80,7 +80,7 @@ BoardClass.prototype = function(){
 		return pieces[ getRandomArbitrary(0, pieces.length)];
 	}
 
-	var fixPieceOnBoard = function(){
+	function fixPieceOnBoard(){
 		var piecePosition = this.piecePosition;
 		for(var pieceRow = 0; pieceRow < this.piece.length; pieceRow++){
 			for(var pieceCol = 0; pieceCol < this.piece[pieceRow].length; pieceCol++){
@@ -90,7 +90,7 @@ BoardClass.prototype = function(){
 		}
 	}
 
-	var rotateThisPiece = function(pieceToRotate){
+	function rotateThisPiece(pieceToRotate){
 		var newPiece = new Array(pieceToRotate[0].length);
 		for(var npieceRow = 0; npieceRow < newPiece.length; npieceRow++){
 			newPiece[npieceRow] = new Array(pieceToRotate.length);
@@ -105,7 +105,7 @@ BoardClass.prototype = function(){
 		return newPiece;
 	}
 
-	var rotatePiece = function(){
+	function rotatePiece(){
 		var piecePosition = this.piecePosition;
 		this.piece = rotateThisPiece.call(this,this.piece);
 		while(piecePosition.col+this.piece[0].length > this.cols){
@@ -113,13 +113,13 @@ BoardClass.prototype = function(){
 		}
 	}
 
-	var throwANewPiece = function(){
+	function throwANewPiece(){
 		this.piece = pieces[ getRandomArbitrary(0, pieces.length)];
 		this.piecePosition.row = 0;
 		this.piecePosition.col = getRandomArbitrary(0,this.cols-this.piece[0].length +1);
 	}
 
-	var thereIsSomethingBelowThePiece = function(){
+	function thereIsSomethingBelowThePiece(){
 		var piecePosition = this.piecePosition;
 		for(var pieceRow = 0; pieceRow < this.piece.length; pieceRow++){
 			for(var pieceCol = 0; pieceCol < this.piece[pieceRow].length; pieceCol++){
@@ -139,7 +139,7 @@ BoardClass.prototype = function(){
 		return true;
 	}
 
-	var dropLinesAbove = function(line){
+	function dropLinesAbove(line){
 		for(var row = line; row > 0; row--){
 			for(var col = 0; col < this.cols; col++){
 				this.boardState[row][col] = this.boardState[row-1][col];
@@ -147,7 +147,7 @@ BoardClass.prototype = function(){
 		}
 	}
 
-	var removeLines = function(){
+	function removeLines(){
 		var linesToRemove = [];
 		for(var row = this.rows -1 ; row >= 0; row--){
 			if(checkIfLineIsFull.call(this,row)){
@@ -162,7 +162,7 @@ BoardClass.prototype = function(){
 		}
 	}
 
-	var step = function(){
+	function step(){
 		if(this.piecePosition.row+this.piece.length == this.rows || thereIsSomethingBelowThePiece.call(this)){
 			fixPieceOnBoard.call(this);
 			throwANewPiece.call(this);
@@ -172,7 +172,7 @@ BoardClass.prototype = function(){
 		}
 	}
 	
-	var getPieceWithPosition = function(){
+	function getPieceWithPosition(){
 		return {
 			piece : this.piece,
 			col : this.piecePosition.col,
