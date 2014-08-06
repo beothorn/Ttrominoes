@@ -90,7 +90,13 @@ var speed = 1;
 
 var lastMoveTime = 0;
 
-Board.start();
+Board.start([
+			['#','#','#'],
+			['#',' ','#'],
+			['#','#','#'],
+			['#',' ','#'],
+			['#',' ','#']
+		]);
 
 function loop(){
     var currentTime = Date.now();
