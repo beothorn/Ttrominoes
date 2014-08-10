@@ -330,5 +330,6 @@ BoardClass.prototype = function(){
 	};
 }();
 
-var pieceGenerator = new PieceGeneratorClass(true);
+//var pieceGenerator = new PieceGeneratorClass(true);
+var pieceGenerator = new PieceGeneratorClass();
 var Board =  new BoardClass(pieceGenerator);

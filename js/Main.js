@@ -1,4 +1,9 @@
+var w = window.innerWidth;
+var h = window.innerHeight;
+
 var canvas= document.getElementById("game-canvas");
+canvas.width  = w;
+canvas.height = h;
 var context= canvas.getContext("2d");
 context.font = "bold 20px Arial";
 context.strokeStyle = "black";
@@ -26,10 +31,20 @@ function textHeight(text){
 var textHeight = textHeight("ColorTetris");
 //fillStrokedText("ColorTetris", 0, textHeight);
 
-
 context.lineWidth = 1;
-var boardX = 0;//3;
-var boardY = 0;//textHeight+10;
+var boardX = (canvas.width/2)-((Board.boardState[0].length*pieceSize)/2);
+var boardY = 0;
+
+window.onresize = function(event) {
+	w = window.innerWidth;
+	h = window.innerHeight;
+	var canvas= document.getElementById("game-canvas");
+	canvas.width  = w;
+	canvas.height = h;
+	pieceSize = Math.floor(canvas.height/22);
+	boardX = (canvas.width/2)-((Board.boardState[0].length*pieceSize)/2);
+	boardY = 0;
+};
 
 function draw(){
     context.fillStyle = "white";
@@ -104,9 +119,7 @@ function loop(){
     
     if(timePassedInSeconds-lastMoveTime >= speed){
 		lastMoveTime = timePassedInSeconds;
-        
         Board.step();
-		
 	}
     
     draw();
@@ -126,12 +139,10 @@ var down = 40;
 document.onkeydown = function(e) {
 	if(e.keyCode === right){
 		Board.moveRight();
-		
 		e.preventDefault();
 	}
 	if(e.keyCode === left){
 		Board.moveLeft();
-		
 		e.preventDefault();
 	}
 	if(e.keyCode === down){
@@ -149,4 +160,34 @@ document.onkeyup = function(e) {
 		speed = 1;
 		e.preventDefault();
 	}
+};
+
+document.ontouchstart = function(e) {
+	var touchobj = e.changedTouches[0] // reference first touch point (ie: first finger)
+  	var startx = parseInt(touchobj.clientX);
+	var starty = parseInt(touchobj.clientY);
+	if(startx < boardX){
+		Board.moveLeft();
+		e.preventDefault();
+		return;
+	}
+	if(startx > boardX + (Board.boardState[0].length*pieceSize)){
+		Board.moveRight();
+		e.preventDefault();
+		return;
+	}
+	
+	if(starty > boardY + (Board.boardState.length*pieceSize) - (3*pieceSize)){
+		speed = 0;
+		e.preventDefault();
+		return;
+	}
+	
+	Board.rotatePiece();
+	e.preventDefault();
+};
+
+document.ontouchend = function(e) {
+	speed = 1;
+	e.preventDefault();
 };
