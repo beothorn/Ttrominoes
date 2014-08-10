@@ -26,7 +26,6 @@ var BoardClass = function(pieceGeneratorOrState, startingBoardStateOrBoard){
 			];
 	
 	this.pieceGenerator = new function(){
-			//fair piece generator
 			var pieces = [
 				[
 					['#',' '],
@@ -151,10 +150,36 @@ BoardClass.prototype = function(){
 
 	function rotatePiece(){
 		var piecePosition = this.piecePosition;
-		this.piece = rotateThisPiece.call(this,this.piece);
-		while(piecePosition.col+this.piece[0].length > this.cols){
-			piecePosition.col--;
+		var pieceCopy = [];
+		
+		for(var lineI = 0; lineI < this.piece.length; lineI++){
+			pieceCopy.push(this.piece[lineI].slice());
 		}
+		
+		var positionCopy = { col: piecePosition.col, row : piecePosition.row};
+		pieceCopy = rotateThisPiece.call(this,pieceCopy);
+		while(positionCopy.col+pieceCopy[0].length > this.cols){
+			positionCopy.col--;
+		}
+		
+		for(var pieceRow = 0; pieceRow < pieceCopy.length; pieceRow++){
+			for(var pieceCol = 0; pieceCol < pieceCopy[pieceRow].length; pieceCol++){
+				var pieceBottomEdge = positionCopy.row+pieceRow;
+				if(pieceBottomEdge >= this.boardState.length)
+					return;
+				
+				var pieceRightEdge = positionCopy.col+pieceCol;
+				if(pieceRightEdge >= this.boardState[0].length)
+					return;
+				
+				if(pieceCopy[pieceRow][pieceCol] == '#' && this.boardState[pieceBottomEdge][pieceRightEdge] == '#'){
+					return;
+				}
+			}
+		}
+		
+		this.piece = pieceCopy;
+		this.piecePosition = positionCopy;
 	}
 
 	function throwANewPiece(){
@@ -168,6 +193,30 @@ BoardClass.prototype = function(){
 		for(var pieceRow = 0; pieceRow < this.piece.length; pieceRow++){
 			for(var pieceCol = 0; pieceCol < this.piece[pieceRow].length; pieceCol++){
 				if(this.piece[pieceRow][pieceCol] == '#' && this.boardState[piecePosition.row+pieceRow+1][piecePosition.col+pieceCol] == '#'){
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	function thereIsSomethingOnTheRightOfThePiece(){
+		var piecePosition = this.piecePosition;
+		for(var pieceRow = 0; pieceRow < this.piece.length; pieceRow++){
+			for(var pieceCol = this.piece[pieceRow].length -1 ; pieceCol >= 0; pieceCol--){
+				if(this.piece[pieceRow][pieceCol] == '#' && this.boardState[piecePosition.row+pieceRow][piecePosition.col+pieceCol+1] == '#'){
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	function thereIsSomethingOnTheLeftOfThePiece(){
+		var piecePosition = this.piecePosition;
+		for(var pieceRow = 0; pieceRow < this.piece.length; pieceRow++){
+			for(var pieceCol = 0; pieceCol < this.piece[pieceRow].length; pieceCol++){
+				if(this.piece[pieceRow][pieceCol] == '#' && this.boardState[piecePosition.row+pieceRow][piecePosition.col+pieceCol-1] == '#'){
 					return true;
 				}
 			}
@@ -233,11 +282,19 @@ BoardClass.prototype = function(){
 	}
 	
 	function moveRight(){
+		if(thereIsSomethingOnTheRightOfThePiece.call(this)){
+			return;
+		}
+		
 		if(this.piecePosition.col + this.piece[0].length < this.cols)
 			this.piecePosition.col++;
 	}
 	
 	function moveLeft(){
+		if(thereIsSomethingOnTheLeftOfThePiece.call(this)){
+			return;
+		}
+		
 		if(this.piecePosition.col > 0)
 			this.piecePosition.col--;
 	}
