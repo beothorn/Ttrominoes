@@ -273,7 +273,12 @@ BoardClass.prototype = function(){
 	};
 }();
 
-var evilPieceGenerator = new function(){
+var PieceGeneratorClass = function(giveBestPiece){
+	this.shouldGiveBestPiece = giveBestPiece || false;
+};
+
+PieceGeneratorClass.prototype = (function(){
+	
 	var pieces = [
 		[
 			['#',' '],
@@ -328,10 +333,15 @@ var evilPieceGenerator = new function(){
 		return board.length;
 	}
 	
-	this.generatePieceForBoardState = function(boardState){
+	function generatePieceForBoardState(boardState){
 		
-		var worstScore = -1;
-		var worstPiece = 0;
+		if( evaluate(boardState) > boardState.length - 3){
+			var piece = pieces[ getRandomArbitrary(0, pieces.length)];
+			return {piece: piece, position: {col: getRandomArbitrary(0,boardState[0].length-piece[0].length +1), row: 0}};
+		}
+		
+		var topScore = -1;
+		var pieceToBeUsed = 0;
 		for(var pieceI = 0 ; pieceI < pieces.length; pieceI++){	
 			var bestPieceScore = 0;
 			for(var rotation = 0 ; rotation < 4; rotation++){
@@ -359,25 +369,42 @@ var evilPieceGenerator = new function(){
 					}
 				}
 			}
-			console.log(bestPieceScore);
-			if(bestPieceScore <= worstScore || worstScore == -1){
-				if(bestPieceScore < worstScore){
-					worstPiece = pieceI;
-					worstScore = bestPieceScore;
-				}else{
-					if(getRandomArbitrary(0, 2) == 1){
-						worstPiece = pieceI;
-						worstScore = bestPieceScore;
+			if(this.shouldGiveBestPiece){
+				if(bestPieceScore >= topScore || topScore == -1){
+					if(bestPieceScore > topScore){
+						pieceToBeUsed = pieceI;
+						topScore = bestPieceScore;
+					}else{
+						if(getRandomArbitrary(0, 2) == 1){
+							pieceToBeUsed = pieceI;
+							topScore = bestPieceScore;
+						}
+					}
+				}
+			}else{
+				if(bestPieceScore <= topScore || topScore == -1){
+					if(bestPieceScore < topScore){
+						pieceToBeUsed = pieceI;
+						topScore = bestPieceScore;
+					}else{
+						if(getRandomArbitrary(0, 2) == 1){
+							pieceToBeUsed = pieceI;
+							topScore = bestPieceScore;
+						}
 					}
 				}
 			}
 		}
 		
 		
-		var piece = pieces[worstPiece];
+		var piece = pieces[pieceToBeUsed];
 		return {piece: piece, position: {col: getRandomArbitrary(0,boardState[0].length-piece[0].length +1), row: 0}};
 	}
-};
+	
+	return {
+		generatePieceForBoardState : generatePieceForBoardState
+	};
+})();
 
 var letterPieceGenerator = new function(){
 	var pieces = [
@@ -574,41 +601,5 @@ var letterPieceGenerator = new function(){
 	}
 };
 
-var Board =  new BoardClass(evilPieceGenerator);
-
-var BoardX =  new BoardClass( new function(){
-				this.generatePieceForBoardState = function(boardState){
-					return {piece: [
-			['#'],
-			['#'],
-			['#'],
-			['#']
-		], position: {col: 0, row: 0}};
-				}
-			},
-			[
-				[' ',' ',' ',' ',' ',' ',' ',' ',' ',' '],
-				[' ',' ',' ',' ',' ',' ',' ',' ',' ',' '],
-				[' ',' ',' ',' ',' ',' ',' ',' ',' ',' '],
-				[' ',' ',' ',' ',' ',' ',' ',' ',' ',' '],
-				[' ',' ',' ',' ',' ',' ',' ',' ',' ',' '],
-				[' ',' ',' ',' ',' ',' ',' ',' ',' ',' '],
-				[' ',' ',' ',' ',' ',' ',' ',' ',' ',' '],
-				[' ',' ',' ',' ',' ',' ',' ',' ',' ',' '],
-				[' ',' ',' ',' ',' ',' ',' ',' ',' ',' '],
-				[' ',' ',' ',' ',' ',' ',' ',' ',' ',' '],
-				[' ',' ',' ',' ',' ',' ',' ',' ',' ',' '],
-				[' ',' ',' ',' ',' ',' ',' ',' ',' ',' '],
-				[' ',' ',' ',' ',' ',' ',' ',' ',' ',' '],
-				[' ',' ',' ',' ',' ',' ',' ',' ',' ',' '],
-				[' ',' ',' ',' ',' ',' ',' ',' ',' ',' '],
-				[' ',' ',' ',' ',' ',' ',' ',' ',' ',' '],
-				[' ',' ',' ',' ',' ',' ',' ',' ',' ',' '],
-				[' ',' ',' ',' ',' ',' ',' ',' ',' ',' '],
-				[' ',' ',' ',' ',' ',' ',' ',' ',' ',' '],
-				[' ',' ',' ',' ',' ',' ',' ',' ',' ',' '], 
-				[' ',' ',' ',' ',' ',' ',' ',' ',' ',' '],
-				[' ','#','#','#','#','#','#','#','#','#']
-			]);
-			BoardX.stepUntilPieceIsAtBottom();
-			console.log(BoardX.toString());
+var pieceGenerator = new PieceGeneratorClass(true);
+var Board =  new BoardClass(pieceGenerator);
