@@ -90,15 +90,8 @@ var speed = 1;
 
 var lastMoveTime = 0;
 
-Board.start([
-			['#','#','#'],
-			['#',' ','#'],
-			['#','#','#'],
-			['#',' ','#'],
-			['#',' ','#']
-		]);
-
 function loop(){
+	
     var currentTime = Date.now();
 	delta += currentTime - lastLoopTime;
 	if(delta < frameLimit){
