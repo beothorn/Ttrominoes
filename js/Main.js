@@ -46,8 +46,45 @@ window.onresize = function(event) {
 	boardY = 0;
 };
 
+function createRounRectPath(x, y, width, height){
+	var radius = width/2.5;
+	context.beginPath();
+	context.moveTo(x + radius, y);
+	context.lineTo(x + width - radius, y);
+	context.quadraticCurveTo(x + width, y, x + width, y + radius);
+	context.lineTo(x + width, y + height - radius);
+	context.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+	context.lineTo(x + radius, y + height);
+	context.quadraticCurveTo(x, y + height, x, y + height - radius);
+	context.lineTo(x, y + radius);
+	context.quadraticCurveTo(x, y, x + radius, y);
+	context.closePath();
+}
+
+function drawPieceShadow(x, y, width, height) {
+	var oldFill = context.fillStyle;
+	context.fillStyle = "#333333";
+	createRounRectPath(x+3, y+3, width, height);
+	context.fill();
+	context.fillStyle = oldFill;
+}
+
+function drawPiece(x, y, width, height) {
+	createRounRectPath(x, y, width, height);
+	context.fill();
+	
+	var oldFill = context.fillStyle;
+	context.fillStyle = 'rgba(255,255,255,0.1)';
+	context.beginPath();
+	context.arc(x+width/4, y+width/4, width/5,0, Math.PI*2, true); 
+	context.closePath();
+	context.fill();
+	
+	context.fillStyle = oldFill;
+}
+
 function draw(){
-    context.fillStyle = "white";
+	context.strokeStyle = "#4670a1";
 	
 	var pieceWithPosition = Board.getPieceWithPosition();
 	
@@ -58,31 +95,42 @@ function draw(){
 	var rows = boardState.length;
 	var cols = boardState[0].length;
 	
-    for(var row = 0; row < rows; row++){
-        for(var col = 0; col < cols; col++){
-            context.fillRect(col*pieceSize + boardX, row*pieceSize + boardY , pieceSize, pieceSize);
-            context.strokeRect(col*pieceSize + boardX, row*pieceSize + boardY , pieceSize, pieceSize);
-        }
-    }
-    
-    context.fillStyle = "green";
-    for(var row = 0; row < rows; row++){
-        for(var col = 0; col < cols; col++){
-            if(boardState[row][col] == '#')
-                context.fillRect(col*pieceSize + boardX, row*pieceSize + boardY , pieceSize, pieceSize);
-        }
-    }
-    
-    for(var pieceRow = 0; pieceRow < piece.length; pieceRow++){
-        for(var pieceCol = 0; pieceCol < piece[pieceRow].length; pieceCol++){
-            if(piece[pieceRow][pieceCol] == '#')
-                context.fillRect((pieceColPos+pieceCol)*pieceSize + boardX, (pieceRowPos+pieceRow)*pieceSize + boardY , pieceSize, pieceSize);
-        }
-    }
+	context.fillStyle = 'rgba(80,110,125,0.4)';
+	context.fillRect(0, 0 , w, h);
+	context.fillStyle = 'rgba(46,70,101,0.4)';
+	context.fillRect(boardX, boardY , cols*pieceSize, rows*pieceSize);
 	
 	for(var row = 0; row < rows; row++){
         for(var col = 0; col < cols; col++){
-            context.strokeRect(col*pieceSize + boardX, row*pieceSize + boardY , pieceSize, pieceSize);
+            if(boardState[row][col] == '#'){
+				drawPieceShadow(col*pieceSize + boardX, row*pieceSize + boardY , pieceSize, pieceSize);
+			}
+        }
+    }
+	
+    for(var pieceRow = 0; pieceRow < piece.length; pieceRow++){
+        for(var pieceCol = 0; pieceCol < piece[pieceRow].length; pieceCol++){
+            if(piece[pieceRow][pieceCol] == '#'){
+				drawPieceShadow((pieceColPos+pieceCol)*pieceSize + boardX, (pieceRowPos+pieceRow)*pieceSize + boardY , pieceSize, pieceSize);
+			}
+        }
+    }
+	
+	context.fillStyle = "#ff5724";
+    for(var row = 0; row < rows; row++){
+        for(var col = 0; col < cols; col++){
+            if(boardState[row][col] == '#'){
+				drawPiece(col*pieceSize + boardX, row*pieceSize + boardY , pieceSize, pieceSize);
+			}
+        }
+    }
+	
+	context.fillStyle = "#cc2929";
+    for(var pieceRow = 0; pieceRow < piece.length; pieceRow++){
+        for(var pieceCol = 0; pieceCol < piece[pieceRow].length; pieceCol++){
+            if(piece[pieceRow][pieceCol] == '#'){
+				drawPiece((pieceColPos+pieceCol)*pieceSize + boardX, (pieceRowPos+pieceRow)*pieceSize + boardY , pieceSize, pieceSize);
+			}
         }
     }
 }   
