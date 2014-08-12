@@ -1,4 +1,4 @@
-var BoardClass = function(pieceGeneratorOrState, startingBoardStateOrBoard){
+var Board = function(pieceGeneratorOrState, startingBoardStateOrBoard){
 	
 	var startingBoardState = [
 				[' ',' ',' ',' ',' ',' ',' ',' ',' ',' '],
@@ -121,7 +121,7 @@ var BoardClass = function(pieceGeneratorOrState, startingBoardStateOrBoard){
 	}
 };
 
-BoardClass.prototype = function(){	
+Board.prototype = function(){	
 
 	function fixPieceOnBoard(){
 		var piecePosition = this.piecePosition;
@@ -329,7 +329,3 @@ BoardClass.prototype = function(){
 		toString : toString
 	};
 }();
-
-//var pieceGenerator = new PieceGeneratorClass(true);
-var pieceGenerator = new PieceGeneratorClass();
-var Board =  new BoardClass(pieceGenerator);

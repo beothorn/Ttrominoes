@@ -82,7 +82,7 @@ PieceGeneratorClass.prototype = (function(){
 						}
 					}
 					
-					var testBoard = new BoardClass(startingConditions, boardState);
+					var testBoard = new Board(startingConditions, boardState);
 					for(var i = 0; i < rotation; i++){
 						testBoard.rotatePiece();
 					}
