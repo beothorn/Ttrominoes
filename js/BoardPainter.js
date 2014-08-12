@@ -1,4 +1,4 @@
-var BoardPainter = function(board, canvasContext, x, y, pieceSize){
+var BoardPainter = function(board, canvasContext){
     this.board = board;
     this.context = canvasContext;
 };
@@ -103,10 +103,15 @@ BoardPainter.prototype = function(){
         return board.boardState[0].length * this.pieceSize;
     }
     
+    function getX(){
+        return this.boardX;
+    }
+    
     return {
         draw : draw,
         setPieceSize : setPieceSize,
         setPosition : setPosition,
-        getWidth : getWidth
+        getWidth : getWidth,
+        getX : getX
     }
 }();

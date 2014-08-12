@@ -253,6 +253,9 @@ Board.prototype = function(){
 			dropLinesAbove.call(this,linesToRemove[line]+removedCount);
 			removedCount++;
 		}
+		if(this.removedLineListener){
+			this.removedLineListener(removedCount);
+		}
 	}
 
 	function step(){
@@ -319,6 +322,21 @@ Board.prototype = function(){
 		return boardAsString;
 	}
 	
+	function setRemovedLineListener(removedLineListener){
+		this.removedLineListener = removedLineListener;
+	}
+	
+	function isGameOver(){
+		for(var row = 0; row < 3; row++){
+            for(var col = 0; col < this.cols; col++){
+                if(this.boardState[row][col] == '#'){
+                	return true;    
+                }
+            }
+        }
+		return false;
+	}
+	
 	return {
 		step : step,
 		stepUntilPieceIsAtBottom : stepUntilPieceIsAtBottom,
@@ -326,6 +344,8 @@ Board.prototype = function(){
 		moveRight : moveRight,
 		moveLeft : moveLeft,
 		rotatePiece : rotatePiece,
+		setRemovedLineListener : setRemovedLineListener, 
+		isGameOver : isGameOver, 
 		toString : toString
 	};
 }();

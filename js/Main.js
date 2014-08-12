@@ -10,41 +10,35 @@ var context= canvas.getContext("2d");
 //var pieceGenerator = new PieceGeneratorClass(true);
 var pieceGenerator = new PieceGeneratorClass();
 var board =  new Board(pieceGenerator);
-var scorePainter = new ScorePainter(context);
+
 var startingPieceSize = Math.floor(canvas.height/22);
-var boardPainter = new BoardPainter(board,context,(canvas.width/2)-((board.boardState[0].length*startingPieceSize)/2)-scorePainter.getWidth(),0,startingPieceSize);
+var scorePainter = new ScorePainter(context);
+var boardPainter = new BoardPainter(board,context);
+
+board.setRemovedLineListener(function(lines){
+	scorePainter.addScore(lines);
+});
 
 function adaptToSize(){
 	canvas.width  =  window.innerWidth;
 	canvas.height = window.innerHeight;
-	boardPainter.setPieceSize(Math.floor(canvas.height/22));
+	var blockSize = Math.floor(canvas.height/22);
+	
+	scorePainter.setWidth(blockSize*3);
+	boardPainter.setPieceSize(blockSize);
     boardPainter.setPosition((canvas.width/2)-(boardPainter.getWidth()/2)-scorePainter.getWidth(),0);
+	scorePainter.setPosition(boardPainter.getX()+boardPainter.getWidth(),0);
 }
 
 adaptToSize();
 
 function fillStrokedText(text, x, y){
-	context.font = "bold "+canvas.width/55+"px Arial";
 	context.strokeStyle = "black";
 	context.lineWidth = 3;
 	context.fillStyle = "white";
 	context.strokeText(text, x, y);
 	context.fillText(text, x, y);
 }
-
-
-function textHeight(text){
-    var d = document.createElement("span");
-    d.font = context.font;
-    d.textContent = text;
-    document.body.appendChild(d);
-    var emHeight = d.offsetHeight;
-    document.body.removeChild(d);
-    return emHeight;
-}
-
-var textHeight = textHeight("ColorTetris");
-fillStrokedText("ColorTetris", 0, textHeight);
 
 window.onresize = adaptToSize;
 
@@ -57,6 +51,11 @@ function draw(){
 	boardPainter.draw();
 	scorePainter.draw();
 	
+	if(board.isGameOver()){
+		var gameOver = "Game over";
+		context.font = "bold "+(canvas.width/10)+"px Arial";
+		fillStrokedText(gameOver, canvas.width/2 - ((canvas.width/10)*4), canvas.height/2)
+	}
 }
 
 var oneSecond = 1000;
@@ -84,7 +83,7 @@ function loop(){
     
     if(timePassedInSeconds-lastMoveTime >= speed){
 		lastMoveTime = timePassedInSeconds;
-        board.step();
+        if(!board.isGameOver()) board.step();
 	}
     
     draw();
