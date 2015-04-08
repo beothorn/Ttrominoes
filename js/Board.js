@@ -1,5 +1,5 @@
 var Board = function(pieceGeneratorOrState, startingBoardStateOrBoard){
-	
+
 	var startingBoardState = [
 				[' ',' ',' ',' ',' ',' ',' ',' ',' ',' '],
 				[' ',' ',' ',' ',' ',' ',' ',' ',' ',' '],
@@ -20,11 +20,11 @@ var Board = function(pieceGeneratorOrState, startingBoardStateOrBoard){
 				[' ',' ',' ',' ',' ',' ',' ',' ',' ',' '],
 				[' ',' ',' ',' ',' ',' ',' ',' ',' ',' '],
 				[' ',' ',' ',' ',' ',' ',' ',' ',' ',' '],
-				[' ',' ',' ',' ',' ',' ',' ',' ',' ',' '], 
+				[' ',' ',' ',' ',' ',' ',' ',' ',' ',' '],
 				[' ',' ',' ',' ',' ',' ',' ',' ',' ',' '],
 				[' ',' ',' ',' ',' ',' ',' ',' ',' ',' ']
 			];
-	
+
 	this.pieceGenerator = new function(){
 			var pieces = [
 				[
@@ -60,21 +60,21 @@ var Board = function(pieceGeneratorOrState, startingBoardStateOrBoard){
 					['#']
 				]
 			];
-			
+
 			function getRandomArbitrary(min, max) {
 			  return Math.floor(Math.random() * (max - min)) + min;
 			}
-		
+
 			function getRandomPiece(){
 				return pieces[ getRandomArbitrary(0, pieces.length)];
 			}
-			
+
 			this.generatePieceForBoardState = function(boardState){
 				var piece = pieces[ getRandomArbitrary(0, pieces.length)];
 				return {piece: piece, position: {col: getRandomArbitrary(0,boardState[0].length-piece[0].length +1), row: 0}};
 			}
-		};	
-	
+		};
+
 	if(pieceGeneratorOrState instanceof Array){
 		var boardStateCopy = [];
 		for(var lineI = 0; lineI < pieceGeneratorOrState.length; lineI++){
@@ -82,11 +82,11 @@ var Board = function(pieceGeneratorOrState, startingBoardStateOrBoard){
 		}
 		startingBoardState = boardStateCopy;
 	}else{
-		this.pieceGenerator = pieceGeneratorOrState;	
+		this.pieceGenerator = pieceGeneratorOrState;
 	}
-	
-	
-		
+
+
+
 	if(typeof(startingBoardStateOrBoard) == "undefined" || startingBoardStateOrBoard instanceof Array){
 		if(startingBoardStateOrBoard instanceof Array){
 			var boardStateCopy = [];
@@ -95,9 +95,9 @@ var Board = function(pieceGeneratorOrState, startingBoardStateOrBoard){
 			}
 			this.boardState = boardStateCopy;
 		}else{
-			this.boardState = startingBoardState;	
+			this.boardState = startingBoardState;
 		}
-		
+
 		this.cols = this.boardState[0].length;
 		this.rows = this.boardState.length;
 		var generatedPiece = this.pieceGenerator.generatePieceForBoardState(this.boardState);
@@ -110,10 +110,10 @@ var Board = function(pieceGeneratorOrState, startingBoardStateOrBoard){
 		for(var lineI = 0; lineI < otherBoard.boardState.length; lineI++){
 			this.boardState.push(otherBoard.boardState[lineI].slice());
 		}
-		
+
 		this.cols = this.boardState[0].length;
 		this.rows = this.boardState.length;
-		
+
 		this.piece = [];
 		for(var lineI = 0; lineI < otherBoard.piece.length; lineI++){
 			this.piece.push(otherBoard.piece[lineI].slice());
@@ -121,7 +121,7 @@ var Board = function(pieceGeneratorOrState, startingBoardStateOrBoard){
 	}
 };
 
-Board.prototype = function(){	
+Board.prototype = function(){
 
 	function fixPieceOnBoard(){
 		var piecePosition = this.piecePosition;
@@ -151,41 +151,47 @@ Board.prototype = function(){
 	function rotatePiece(){
 		var piecePosition = this.piecePosition;
 		var pieceCopy = [];
-		
+
 		for(var lineI = 0; lineI < this.piece.length; lineI++){
 			pieceCopy.push(this.piece[lineI].slice());
 		}
-		
+
 		var positionCopy = { col: piecePosition.col, row : piecePosition.row};
 		pieceCopy = rotateThisPiece.call(this,pieceCopy);
 		while(positionCopy.col+pieceCopy[0].length > this.cols){
 			positionCopy.col--;
 		}
-		
+
 		for(var pieceRow = 0; pieceRow < pieceCopy.length; pieceRow++){
 			for(var pieceCol = 0; pieceCol < pieceCopy[pieceRow].length; pieceCol++){
 				var pieceBottomEdge = positionCopy.row+pieceRow;
 				if(pieceBottomEdge >= this.boardState.length)
 					return;
-				
+
 				var pieceRightEdge = positionCopy.col+pieceCol;
 				if(pieceRightEdge >= this.boardState[0].length)
 					return;
-				
+
 				if(pieceCopy[pieceRow][pieceCol] == '#' && this.boardState[pieceBottomEdge][pieceRightEdge] == '#'){
 					return;
 				}
 			}
 		}
-		
+
 		this.piece = pieceCopy;
 		this.piecePosition = positionCopy;
 	}
 
 	function throwANewPiece(){
-		var generatedPiece = this.pieceGenerator.generatePieceForBoardState(this.boardState);
-		this.piece = generatedPiece.piece;
-		this.piecePosition = generatedPiece.position;
+		if(!this.nextPiece)
+			this.nextPiece = this.pieceGenerator.generatePieceForBoardState(this.boardState);
+
+		this.piece = this.nextPiece.piece;
+		this.piecePosition = this.nextPiece.position;
+
+		var generatedPiece = this.pieceGenerator.generatePieceForBoardState(this.boardState, this.piece);
+		this.nextPiece = generatedPiece;
+		console.log(JSON.stringify(this.nextPiece));
 	}
 
 	function thereIsSomethingBelowThePiece(){
@@ -199,7 +205,7 @@ Board.prototype = function(){
 		}
 		return false;
 	}
-	
+
 	function thereIsSomethingOnTheRightOfThePiece(){
 		var piecePosition = this.piecePosition;
 		for(var pieceRow = 0; pieceRow < this.piece.length; pieceRow++){
@@ -211,7 +217,7 @@ Board.prototype = function(){
 		}
 		return false;
 	}
-	
+
 	function thereIsSomethingOnTheLeftOfThePiece(){
 		var piecePosition = this.piecePosition;
 		for(var pieceRow = 0; pieceRow < this.piece.length; pieceRow++){
@@ -267,7 +273,7 @@ Board.prototype = function(){
 			this.piecePosition.row+=1;
 		}
 	}
-	
+
 	function stepUntilPieceIsAtBottom(){
 		while(this.piecePosition.row+this.piece.length != this.rows && !thereIsSomethingBelowThePiece.call(this)){
 			this.piecePosition.row+=1;
@@ -275,7 +281,7 @@ Board.prototype = function(){
 		fixPieceOnBoard.call(this);
 		removeLines.call(this);
 	}
-	
+
 	function getPieceWithPosition(){
 		return {
 			piece : this.piece,
@@ -283,25 +289,25 @@ Board.prototype = function(){
 			row : this.piecePosition.row
 		};
 	}
-	
+
 	function moveRight(){
 		if(thereIsSomethingOnTheRightOfThePiece.call(this)){
 			return;
 		}
-		
+
 		if(this.piecePosition.col + this.piece[0].length < this.cols)
 			this.piecePosition.col++;
 	}
-	
+
 	function moveLeft(){
 		if(thereIsSomethingOnTheLeftOfThePiece.call(this)){
 			return;
 		}
-		
+
 		if(this.piecePosition.col > 0)
 			this.piecePosition.col--;
 	}
-	
+
 	function toString(){
 		var boardAsString = "";
 		boardAsString = boardAsString.concat("\n\[\n");
@@ -321,31 +327,41 @@ Board.prototype = function(){
 		boardAsString = boardAsString.concat("\n\]\n");
 		return boardAsString;
 	}
-	
+
 	function setRemovedLineListener(removedLineListener){
 		this.removedLineListener = removedLineListener;
 	}
-	
+
 	function isGameOver(){
 		for(var row = 0; row < 3; row++){
             for(var col = 0; col < this.cols; col++){
                 if(this.boardState[row][col] == '#'){
-                	return true;    
+                	return true;
                 }
             }
         }
 		return false;
 	}
-	
+
+	function getState(){
+			return this.boardState;
+	}
+
+	function getNextPiece(){
+			return this.nextPiece;
+	}
+
 	return {
+		getNextPiece: getNextPiece,
+		getState: getState,
 		step : step,
 		stepUntilPieceIsAtBottom : stepUntilPieceIsAtBottom,
 		getPieceWithPosition : getPieceWithPosition,
 		moveRight : moveRight,
 		moveLeft : moveLeft,
 		rotatePiece : rotatePiece,
-		setRemovedLineListener : setRemovedLineListener, 
-		isGameOver : isGameOver, 
+		setRemovedLineListener : setRemovedLineListener,
+		isGameOver : isGameOver,
 		toString : toString
 	};
 }();
