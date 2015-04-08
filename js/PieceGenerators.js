@@ -4,7 +4,7 @@ var PieceGeneratorClass = function(giveBestPiece){
 
 PieceGeneratorClass.prototype = (function(){
 
-	var pieces = [
+	var pieces = [e
 		[
 			['#',' '],
 			['#',' '],
@@ -44,15 +44,22 @@ PieceGeneratorClass.prototype = (function(){
 	}
 
 	function evaluate(board){
-		var boardValue = 0;
+		var blockCount = 0;
+		var blockHeight = 0;
+		var emptyBlockWithFullBlockAbove = 0;
 		for(var row = 0; row < board.length; row++){
 			for(var col = 0; col < board[row].length; col++){
 				if(board[row][col] == '#'){
-					boardValue++;
+					blockCount++;
+					if(blockHeight == 0)
+							blockHeight = board.length-(board.length-row);
 				}
 			}
 		}
-		return (board.length * board[0].length) -  boardValue;
+		var emptyBlocks = (board.length * board[0].length) -  blockCount;
+		var emptyBlocksWeight = 1;
+		var blockHeightWeight = -2;
+		return (emptyBlocks * emptyBlocksWeight) + (blockHeight * blockHeightWeight);
 	}
 
 	function getBestScoreForPieceAndState(piece, boardState){
