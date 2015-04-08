@@ -128,8 +128,9 @@ PieceGeneratorClass.prototype = (function(){
 					piece = pieces[bestPlay.piece];
 			}
 
-			var x = generatePossiblePiecesForBoardState(worstPlay.state.getState());
-			//console.log(JSON.stringify(pieces[x.worstPlay.piece]));
+			if(nextPiece && JSON.stringify(nextPiece) == JSON.stringify(piece)){
+					piece = pieces[getRandomArbitrary(0,pieces.length -1)];
+			}
 
 			return {
 				piece: piece,
