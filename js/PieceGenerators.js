@@ -4,7 +4,7 @@ var PieceGeneratorClass = function(giveBestPiece){
 
 PieceGeneratorClass.prototype = (function(){
 
-	var pieces = [e
+	var pieces = [
 		[
 			['#',' '],
 			['#',' '],
